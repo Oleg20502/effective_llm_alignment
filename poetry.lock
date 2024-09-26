@@ -3054,6 +3054,25 @@ nearley = ["js2py"]
 regex = ["regex"]
 
 [[package]]
+name = "liger-kernel"
+version = "0.3.0"
+description = "Efficient Triton kernels for LLM Training"
+optional = false
+python-versions = "*"
+files = [
+    {file = "liger_kernel-0.3.0-py3-none-any.whl", hash = "sha256:4b2e698c70ada3f93b9839c557856d34c930c196d9c321db5e0affe15f5372b0"},
+    {file = "liger_kernel-0.3.0.tar.gz", hash = "sha256:22cc9eee20b229a50d375555533fa9f9843bcf54edf0a11e02776e7f2b642d90"},
+]
+
+[package.dependencies]
+torch = ">=2.1.2"
+transformers = ">=4.42.0"
+triton = ">=2.3.0"
+
+[package.extras]
+dev = ["black (>=24.4.2)", "datasets (>=2.19.2)", "flake8 (>=4.0.1.1)", "isort (>=5.13.2)", "jupyter (==1.0.0)", "matplotlib (>=3.7.2)", "pytest (>=7.1.2)", "seaborn"]
+
+[[package]]
 name = "llvmlite"
 version = "0.43.0"
 description = "lightweight wrapper around basic LLVM functionality"
@@ -7058,7 +7077,6 @@ files = [
 
 [package.dependencies]
 click = ">=7.0"
-colorama = {version = ">=0.4", optional = true, markers = "sys_platform == \"win32\" and extra == \"standard\""}
 h11 = ">=0.8"
 httptools = {version = ">=0.5.0", optional = true, markers = "extra == \"standard\""}
 python-dotenv = {version = ">=0.13", optional = true, markers = "extra == \"standard\""}
@@ -7803,4 +7821,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "953947f0fd35464662252b309e26273498da0f2e73a86600198b10c812bf4de0"
+content-hash = "c083df354791510fa973c79f23429e6423e16eaeb8a1a9715ffcb1ade4b25285"
