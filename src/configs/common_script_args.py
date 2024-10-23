@@ -20,13 +20,9 @@ class CommonScriptArguments:
         metadata={"help": "Name of logging project (wandb or clearml)"}
     )
     pad_token: str | None = field(
-        metadata={"help": "Special bos token"}
-    )
-    pad_token: str | None = field(
         metadata={"help": "Special pad token"}
     )
     bos_token: str | None = field(
-        default="<|begin_of_text|>",
         metadata={"help": "Special bos token"}
     )
     eos_token: str | None = field(
