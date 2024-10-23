@@ -20,7 +20,9 @@ class CommonScriptArguments:
         metadata={"help": "Name of logging project (wandb or clearml)"}
     )
     pad_token: str | None = field(
-        default="<|reserved_special_token_0|>",
+        metadata={"help": "Special bos token"}
+    )
+    pad_token: str | None = field(
         metadata={"help": "Special pad token"}
     )
     bos_token: str | None = field(
@@ -28,7 +30,6 @@ class CommonScriptArguments:
         metadata={"help": "Special bos token"}
     )
     eos_token: str | None = field(
-        default="<|eot_id|>",
         metadata={"help": "Special eos token"}
     )
     chat_template: str | None = field(

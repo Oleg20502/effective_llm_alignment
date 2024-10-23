@@ -138,8 +138,9 @@ def main():
             tokenize=False,
             add_generation_prompt=add_gen_prompt
         )
-        if constructed_prompt.startswith(tokenizer.bos_token):  # Remove extra bos token
-            constructed_prompt = constructed_prompt[len(tokenizer.bos_token):]
+        if tokenizer.bos_token is not None:
+            if constructed_prompt.startswith(tokenizer.bos_token):  # Remove extra bos token
+                constructed_prompt = constructed_prompt[len(tokenizer.bos_token):]
         return tokenizer(constructed_prompt, truncation=True, padding=True, max_length=sft_config.max_seq_length)
 
     ds = load_datasets(args.dataset, args.test_size, args.dataset_ratio)

@@ -32,6 +32,11 @@ def setup_model_and_tokenizer(
         model.config.pad_token_id = tokenizer.pad_token_id
         if model.generation_config:
             model.generation_config.pad_token_id = tokenizer.pad_token_id
+    if tokenizer.bos_token != args.bos_token:
+        tokenizer.bos_token = args.pad_token
+        model.config.bos_token_id = tokenizer.bos_token_id
+        if model.generation_config:
+            model.generation_config.bos_token_id = tokenizer.bos_token_id
     if tokenizer.chat_template is None or (args.chat_template is not None and args.force_chat_template):
         tokenizer.chat_template = args.chat_template
     if args.added_special_tokens is not None:
