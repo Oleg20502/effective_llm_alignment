@@ -23,6 +23,10 @@ class CommonScriptArguments:
         default="<|reserved_special_token_0|>",
         metadata={"help": "Special pad token"}
     )
+    bos_token: str | None = field(
+        default="<|begin_of_text|>",
+        metadata={"help": "Special bos token"}
+    )
     eos_token: str | None = field(
         default="<|eot_id|>",
         metadata={"help": "Special eos token"}
