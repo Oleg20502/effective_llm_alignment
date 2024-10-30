@@ -26,7 +26,7 @@ def setup_model_and_tokenizer(
         model.config.eos_token_id = tokenizer.eos_token_id
         if model.generation_config:
             model.generation_config.eos_token_id = tokenizer.eos_token_id
-    if tokenizer.bos_token != args.bos_token:
+    if (tokenizer.bos_token is None or args.bos_token is not None) and tokenizer.bos_token != args.bos_token:
         tokenizer.bos_token = args.bos_token
         model.config.bos_token_id = tokenizer.bos_token_id
         if model.generation_config:
