@@ -1,6 +1,10 @@
 from copy import deepcopy
 
-import deepspeed
+try:
+        import deepspeed
+except Exception as e:
+        print(e)
+        
 import torch
 from accelerate import Accelerator
 from torch import nn
