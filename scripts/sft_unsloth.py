@@ -91,13 +91,13 @@ def main():
 
     model = FastLanguageModel.get_peft_model(
         model,
-        r = peft_config.lora_r,
-        target_modules = peft_config.lora_target_modules,
-        lora_alpha = peft_config.lora_alpha,
+        r = model_config.lora_r,
+        target_modules = model_config.lora_target_modules,
+        lora_alpha = model_config.lora_alpha,
         lora_dropout = 0, # Supports any, but = 0 is optimized
         bias = "none",    # Supports any, but = "none" is optimized
         use_gradient_checkpointing = "unsloth", # True or "unsloth" for very long context
-        random_state = model_config.seed,
+        random_state = sft_config.seed,
         use_rslora = False,  # We support rank stabilized LoRA
         loftq_config = None, # And LoftQ
     )
@@ -197,9 +197,10 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
-        peft_config=peft_config,
+        # peft_config=peft_config,
         data_collator=collator,
-        callbacks=[generate_callback] if args.generate_eval_examples else []
+        callbacks=[generate_callback] if args.generate_eval_examples else [],
+        packing = False,
     )
 
     # train and save the model
