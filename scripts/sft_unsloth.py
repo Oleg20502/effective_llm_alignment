@@ -81,7 +81,7 @@ def main():
 
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config.model_name_or_path,
-        max_seq_length=sft_config.max_seq_length, 
+        max_seq_length=sft_config.max_seq_length,
         dtype=torch.bfloat16 if sft_config.bf16 else torch.float16,
         load_in_4bit=True,
     )
