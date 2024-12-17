@@ -74,6 +74,8 @@ def main():
     os.environ["WANDB_PROJECT"] = args.project_name
     os.environ['CLEARML_PROJECT'] = args.project_name
 
+    print(f'\n\n\n {torch.bfloat16 if sft_config.bf16 else torch.float16} \n\n\n')
+
     ################
     # Model & Tokenizer
     ################
