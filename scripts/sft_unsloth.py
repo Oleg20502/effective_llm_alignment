@@ -25,6 +25,13 @@ logger = get_logger(__name__)
 
 LOGGING_TASK_NAME = str(uuid.uuid4())
 
+os.environ["NCCL_P2P_DISABLE"] = "1"
+os.environ["NCCL_IB_DISABLE"] = "1"
+
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+os.environ["HF_DATASETS_OFFLINE"] = "1"
+os.environ["HF_HUB_OFFLINE"] = "1"
+
 os.environ['WANDB_RUN_ID'] = str(random.randint(100000, 999999))
 os.environ['WANDB_NAME'] = LOGGING_TASK_NAME
 os.environ['CLEARML_TASK'] = LOGGING_TASK_NAME
@@ -78,12 +85,15 @@ def main():
     ################
     # Model & Tokenizer
     ################
+    
+    print(f'\n\n\n{model_config.model_name_or_path}\n\n\n')
 
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config.model_name_or_path,
         max_seq_length=sft_config.max_seq_length,
         dtype=None,
         load_in_4bit=True,
+	local_files_only=True
     )
 
     # TODO: Remake get_peft_config() to allow PromptLearning, Vera, etc...
@@ -137,7 +147,8 @@ def main():
             if constructed_prompt.startswith(tokenizer.bos_token):  # Remove extra bos token
                 constructed_prompt = constructed_prompt[len(tokenizer.bos_token):]
         return tokenizer(constructed_prompt, truncation=True, padding=True, max_length=sft_config.max_seq_length)
-
+    
+    
     ds = load_datasets(args.dataset, args.test_size, args.dataset_ratio)
     generate_dataset = ds['test']
 

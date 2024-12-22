@@ -8,7 +8,7 @@ def _load_dataset_from_path(path: str, test_size: float | None) -> DatasetDict:
     if path.endswith('jsonl'):
         dataset = load_dataset("json", data_files=path)
     else:
-        dataset = load_dataset(path)
+        dataset = load_dataset(path.split('.')[-1], data_files=path)
     if test_size is not None:
         dataset = dataset['train'].train_test_split(test_size, seed=42, load_from_cache_file=True)
     return dataset
