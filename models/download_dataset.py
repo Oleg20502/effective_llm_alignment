@@ -15,9 +15,3 @@ downloaded_path = snapshot_download(
 
 print(downloaded_path)
 
-
-#tokenizer = AutoTokenizer.from_pretrained(name)
-#model = AutoModelForCausalLM.from_pretrained(name)
-
-#model.save_pretrained(f"./{save_name}")
-#tokenizer.save_pretrained(f"./{save_name}")
