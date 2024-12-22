@@ -3,12 +3,13 @@ import os
 import random
 import uuid
 import warnings
+import logging
 from dataclasses import dataclass, field
 
 import torch
 from accelerate import PartialState
 from accelerate.logging import get_logger
-from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback, set_seed
 from transformers.integrations import is_deepspeed_zero3_enabled
 from unsloth import FastLanguageModel
 from trl import SFTTrainer, SFTConfig, ModelConfig, get_peft_config
@@ -23,6 +24,9 @@ from src.utils.yaml_args_parser import H4ArgumentParser
 
 logger = get_logger(__name__)
 
+logging.basicConfig(level=logging.INFO)
+train_logger = logging.getLogger(__name__)
+
 LOGGING_TASK_NAME = str(uuid.uuid4())
 
 os.environ["NCCL_P2P_DISABLE"] = "1"
@@ -35,6 +39,13 @@ os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ['WANDB_RUN_ID'] = str(random.randint(100000, 999999))
 os.environ['WANDB_NAME'] = LOGGING_TASK_NAME
 os.environ['CLEARML_TASK'] = LOGGING_TASK_NAME
+
+
+
+class LoggingCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if "loss" in logs:
+            train_logger.info(f"Step {state.global_step}: Loss = {logs['loss']}")
 
 
 @dataclass
@@ -190,7 +201,7 @@ def main():
         tokenizer=tokenizer,
         num_examples=args.num_gen_examples,
         is_deepspeed_zero3=is_deepspeed_zero3_enabled(),
-        logger_backend=sft_config.report_to[0]
+        logger_backend=LoggingCallback
     )
 
     PartialState().wait_for_everyone()
@@ -202,6 +213,10 @@ def main():
     ################
     # Training
     ################
+
+    callbacks = [LoggingCallback]
+    callbacks += [generate_callback] if args.generate_eval_examples else []
+
     trainer = SFTTrainer(
         model,
         args=sft_config,
@@ -210,7 +225,7 @@ def main():
         tokenizer=tokenizer,
         # peft_config=peft_config,
         data_collator=collator,
-        callbacks=[generate_callback] if args.generate_eval_examples else [],
+        callbacks=callbacks,
         packing = False,
     )
 
