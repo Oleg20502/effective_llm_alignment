@@ -149,7 +149,7 @@ def main():
         return tokenizer(constructed_prompt, truncation=True, padding=True, max_length=sft_config.max_seq_length)
     
     
-    ds = load_datasets(args.dataset, args.test_size, args.dataset_ratio)
+    ds = load_datasets(args.dataset, args.test_size, args.dataset_ratio, local=True)
     generate_dataset = ds['test']
 
     signature_columns = ["input_ids", "labels", "attention_mask"]

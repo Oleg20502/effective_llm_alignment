@@ -1,14 +1,16 @@
 import numpy as np
 import warnings
 from accelerate import PartialState
-from datasets import load_dataset, DatasetDict, Dataset, concatenate_datasets
+from datasets import load_dataset, load_from_disk, DatasetDict, Dataset, concatenate_datasets
 
 
-def _load_dataset_from_path(path: str, test_size: float | None) -> DatasetDict:
+def _load_dataset_from_path(path: str, test_size: float | None, local: bool = True) -> DatasetDict:
     if path.endswith('jsonl'):
         dataset = load_dataset("json", data_files=path)
-    else:
+    elif not local:
         dataset = load_dataset(path.split('.')[-1], data_files=path)
+    else:
+        dataset = load_from_disk(path)
     if test_size is not None:
         dataset = dataset['train'].train_test_split(test_size, seed=42, load_from_cache_file=True)
     return dataset
@@ -26,7 +28,7 @@ def _get_subset_from_dataset_dict(dataset: DatasetDict, dataset_ratio: float | N
     return dataset
 
 
-def load_datasets(path: str | list, test_size: float | None, dataset_ratio: float | list | None):
+def load_datasets(path: str | list, test_size: float | None, dataset_ratio: float | list | None, local: bool = True):
     with PartialState().local_main_process_first():
         if dataset_ratio is None:
             warnings.warn("You haven't set dataset ratio for your datasets. Assuming that it's 1 for all datasets.")
@@ -38,13 +40,13 @@ def load_datasets(path: str | list, test_size: float | None, dataset_ratio: floa
         if isinstance(path, list) and isinstance(dataset_ratio, list) and len(path) != len(dataset_ratio):
             raise ValueError(f"You have set {len(path)} datasets and {len(dataset_ratio)} dataset ratios, but it should be equal.")
         if isinstance(path, list):
-            all_datasets = [_load_dataset_from_path(d, test_size) for d in path]
+            all_datasets = [_load_dataset_from_path(d, test_size, local) for d in path]
             truncated_datasets = [_get_subset_from_dataset_dict(d, ratio) for d, ratio in zip(all_datasets, dataset_ratio)]
             ds = DatasetDict()
             ds['train'] = concatenate_datasets([d['train'] for d in truncated_datasets])
             ds['test'] = concatenate_datasets([d['test'] for d in truncated_datasets])
         else:
-            ds = _load_dataset_from_path(path, test_size)
+            ds = _load_dataset_from_path(path, test_size, local)
             ds = _get_subset_from_dataset_dict(ds, dataset_ratio)
     return ds
 
