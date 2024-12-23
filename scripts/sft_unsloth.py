@@ -226,7 +226,7 @@ def main():
         args=sft_config,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        processing_class=tokenizer,
+        tokenizer=tokenizer,
         # peft_config=peft_config,
         data_collator=collator,
         callbacks=callbacks,
