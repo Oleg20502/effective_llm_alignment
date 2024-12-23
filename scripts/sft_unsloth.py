@@ -11,7 +11,7 @@ from accelerate import PartialState
 from accelerate.logging import get_logger
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback, set_seed
 from transformers.integrations import is_deepspeed_zero3_enabled
-from unsloth import FastLanguageModel
+from unsloth import FastLanguageModel, is_bfloat16_supported
 from trl import SFTTrainer, SFTConfig, ModelConfig, get_peft_config
 
 from src.callbacks.generate_examples import GenerateExamplesCallback
@@ -84,6 +84,9 @@ class SFTScriptArguments(CommonScriptArguments):
 
 
 def main():
+    print(f'\n\n\n{is_bfloat16_supported()}\n\n\n')
+
+
     parser = H4ArgumentParser((SFTScriptArguments, SFTConfig, ModelConfig))
     args, sft_config, model_config = parser.parse()
 
