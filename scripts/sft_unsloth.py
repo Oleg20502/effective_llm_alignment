@@ -101,10 +101,11 @@ def main():
 
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config.model_name_or_path,
-        max_seq_length=sft_config.max_seq_length,
-        dtype=None,
+        # max_seq_length=sft_config.max_seq_length,
+        dtype=torch.bfloat16 if sft_config.bf16 else torch.float16,
+        # torch_dtype=torch.bfloat16 if sft_config.bf16 else torch.float16,
         load_in_4bit=True,
-	local_files_only=True
+	    local_files_only=True
     )
 
     # TODO: Remake get_peft_config() to allow PromptLearning, Vera, etc...
@@ -222,7 +223,7 @@ def main():
         args=sft_config,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         # peft_config=peft_config,
         data_collator=collator,
         callbacks=callbacks,

@@ -22,6 +22,8 @@ output_dir: "/home/kashurin/.local/models/sft-grag-llama-3.1-unsloth-lora-32-qkv
 warmup_steps: 20
 report_to: "none"
 conversation_field: "conversation"
+#optim: "adamw_8bit"
+fp16: True
 bf16: False
 seed: 42
 logging_first_step: True
