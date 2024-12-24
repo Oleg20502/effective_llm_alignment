@@ -35,7 +35,6 @@ lora_target_modules:
   - "o_proj"
 lora_r: 16
 lora_alpha: 16
-assistant_message_template: "<|start_header_id|>assistant<|end_header_id|>"
-eos_token: "<|eot_id|>"
-chat_template: "{{ bos_token }}{% set loop_messages = messages %}{% for message in loop_messages %}{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}{{ content }}{% endfor %}{% if add_generation_prompt %}{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}{% endif %}"
+assistant_message_template: "<|im_start|>assistant"
+chat_template: "{% for message in messages %}\n    {{- '<|im_start|>' + message.role + '\n' + message.content | trim + '<|im_end|>' + '\n' -}}\n{% endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\n' -}}\n{%- endif %}"
 force_chat_template: True

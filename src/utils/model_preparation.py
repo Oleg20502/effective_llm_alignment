@@ -21,7 +21,7 @@ def setup_model_and_tokenizer(
 ):
     if max_seq_len is not None:
         tokenizer.model_max_length = max_seq_len
-    if tokenizer.eos_token != args.eos_token:
+    if (tokenizer.eos_token is None or args.eos_token is not None) and tokenizer.eos_token != args.eos_token:
         tokenizer.eos_token = args.eos_token
         model.config.eos_token_id = tokenizer.eos_token_id
         if model.generation_config:
@@ -31,7 +31,7 @@ def setup_model_and_tokenizer(
         model.config.bos_token_id = tokenizer.bos_token_id
         if model.generation_config:
             model.generation_config.bos_token_id = tokenizer.bos_token_id
-    if tokenizer.pad_token != args.pad_token:
+    if (tokenizer.pad_token is None or args.pad_token is not None) and tokenizer.pad_token != args.pad_token:
         tokenizer.pad_token = args.pad_token
         model.config.pad_token_id = tokenizer.pad_token_id
         if model.generation_config:

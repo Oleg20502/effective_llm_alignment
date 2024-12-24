@@ -127,7 +127,7 @@ def main():
             " Make sure to pass --lora_task_type CAUSAL_LM when using this script."
         )
 
-    # setup_model_and_tokenizer(args, model, tokenizer, sft_config.max_seq_length)
+    setup_model_and_tokenizer(args, model, tokenizer, sft_config.max_seq_length)
 
     if PartialState().is_main_process:
         print(f'Tokenizer: {tokenizer}')
