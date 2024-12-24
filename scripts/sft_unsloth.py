@@ -1,6 +1,5 @@
 import multiprocessing
 import os
-import random
 import uuid
 import warnings
 import logging
@@ -9,12 +8,9 @@ from dataclasses import dataclass, field
 import torch
 from accelerate import PartialState
 from accelerate.logging import get_logger
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback, set_seed
-from transformers.integrations import is_deepspeed_zero3_enabled
-from unsloth import FastLanguageModel, is_bfloat16_supported
-from trl import SFTTrainer, SFTConfig, ModelConfig, get_peft_config
+from transformers import TrainerCallback, set_seed
+from trl import SFTTrainer, SFTConfig, ModelConfig
 
-from src.callbacks.generate_examples import GenerateExamplesCallback
 from src.collators.completions_only import DataCollatorForCompletionOnlyLM
 from src.configs.common_script_args import CommonScriptArguments
 from src.utils.datasets import load_datasets
@@ -44,9 +40,34 @@ class LoggingCallback(TrainerCallback):
         if "loss" in logs:
             train_logger.info(f"Step {state.global_step}: Loss = {logs['loss']}")
 
-class PrepareForInferenceCallback(TrainerCallback):
-    def on_evaluate(self, args, state, control, model=None, **kwargs):
-        FastLanguageModel.for_inference(model)
+class TrainEvalLoggingCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        """Logs training and evaluation metrics in the specified logging directory."""
+        if args.logging_dir is not None:
+            os.makedirs(args.logging_dir, exist_ok=True)
+
+        if logs is not None:
+            if "loss" in logs and state.global_step % args.logging_steps == 0:
+                train_log_path = os.path.join(args.logging_dir, 'train_logs.csv')
+                
+                if not os.path.exists(train_log_path):
+                    with open(train_log_path, 'w') as f:
+                        f.write("Step,Loss\n")
+                
+                with open(train_log_path, 'a') as f:
+                    f.write(f"{state.global_step},{logs['loss']}\n")
+            
+            if "eval_loss" in logs:
+                eval_log_path = os.path.join(args.logging_dir, 'eval_logs.csv')
+                
+                if not os.path.exists(eval_log_path):
+                    with open(eval_log_path, 'w') as f:
+                        header = "Step," + ",".join(logs.keys()) + "\n"
+                        f.write(header)
+                
+                with open(eval_log_path, 'a') as f:
+                    values = f"{state.global_step}," + ",".join(str(value) for value in logs.values()) + "\n"
+                    f.write(values)
 
 
 @dataclass
@@ -85,20 +106,16 @@ class SFTScriptArguments(CommonScriptArguments):
 
 
 def main():
-    # print(f'\n\n\n{is_bfloat16_supported()}\n\n\n')
-
     parser = H4ArgumentParser((SFTScriptArguments, SFTConfig, ModelConfig))
     args, sft_config, model_config = parser.parse()
 
     setup_logging(logger, sft_config)
+
     set_seed(sft_config.seed)  # in case of new tokens added without initialize...
 
     ################
     # Model & Tokenizer
     ################
-    
-    print(f'\n\n\n{model_config.model_name_or_path}\n\n\n')
-
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config.model_name_or_path,
         max_seq_length=sft_config.max_seq_length,
@@ -190,7 +207,7 @@ def main():
     # Training
     ################
 
-    callbacks = [LoggingCallback]
+    callbacks = [LoggingCallback, TrainEvalLoggingCallback]
 
     trainer = SFTTrainer(
         model,
@@ -198,7 +215,6 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
-        # peft_config=peft_config,
         data_collator=collator,
         callbacks=callbacks,
         packing = False,
@@ -217,8 +233,8 @@ def main():
 
     used_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)
     used_memory_for_lora = round(used_memory - start_gpu_memory, 3)
-    used_percentage = round(used_memory         /max_memory*100, 3)
-    lora_percentage = round(used_memory_for_lora/max_memory*100, 3)
+    used_percentage = round(used_memory / max_memory*100, 3)
+    lora_percentage = round(used_memory_for_lora / max_memory*100, 3)
     print(f"{trainer_stats.metrics['train_runtime']} seconds used for training.")
     print(f"{round(trainer_stats.metrics['train_runtime']/60, 2)} minutes used for training.")
     print(f"Peak reserved memory = {used_memory} GB.")

@@ -3,10 +3,10 @@ dataset: "/home/kashurin/.local/Grounded-RAG-RU-v2"
 train_only_on_completions: True
 per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
-# num_train_epochs: 1
-max_steps: 60
+num_train_epochs: 1
+# max_steps: 60
 save_strategy: "steps"
-save_steps: 30
+save_steps: 300
 save_total_limit: 6
 learning_rate: 0.00004
 gradient_accumulation_steps: 8
@@ -16,12 +16,13 @@ remove_unused_columns: True
 dataloader_num_workers: 2
 generate_eval_examples: True
 eval_strategy: "steps"
-eval_steps: 10
+eval_steps: 300
 
-run_name: "sft-grag-llama-3.1-unsloth-lora-32-qkvo"
-output_dir: "/home/kashurin/.local/models/sft-grag-llama-3.1-unsloth-lora-32-qkvo"
+run_name: "sft-grag-tlite-1.0-unsloth-lora-16-qkvogud"
+output_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-16-qkvogud"
+logging_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-16-qkvogud/logs/"
 warmup_steps: 20
-report_to: "none"
+report_to: "tensorboard"
 conversation_field: "conversation"
 optim: "adamw_8bit"
 bf16: True
@@ -33,6 +34,9 @@ lora_target_modules:
   - "v_proj"
   - "q_proj"
   - "o_proj"
+  - "gate_proj"
+  - "up_proj" 
+  - "down_proj"
 lora_r: 16
 lora_alpha: 16
 assistant_message_template: "<|im_start|>assistant"
