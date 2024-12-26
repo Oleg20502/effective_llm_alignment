@@ -10,6 +10,7 @@ from accelerate import PartialState
 from accelerate.logging import get_logger
 from transformers import TrainerCallback, set_seed
 from trl import SFTTrainer, SFTConfig, ModelConfig
+from unsloth import FastLanguageModel
 
 from src.collators.completions_only import DataCollatorForCompletionOnlyLM
 from src.configs.common_script_args import CommonScriptArguments

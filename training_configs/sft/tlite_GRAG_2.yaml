@@ -8,7 +8,7 @@ num_train_epochs: 1
 save_strategy: "steps"
 save_steps: 300
 save_total_limit: 6
-learning_rate: 0.0001
+learning_rate: 0.00004
 gradient_accumulation_steps: 8
 gradient_checkpointing: True
 logging_steps: 1
@@ -18,9 +18,9 @@ generate_eval_examples: True
 eval_strategy: "steps"
 eval_steps: 300
 
-run_name: "sft-grag-tlite-1.0-unsloth-lora-16-qkvogud-lr-4"
-output_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-16-qkvogud-lr-4"
-logging_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-16-qkvogud-lr-4/logs/"
+run_name: "sft-grag-tlite-1.0-unsloth-lora-32-qkvo-lr-5"
+output_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-32-qkvo-lr-5"
+logging_dir: "/home/kashurin/.local/models/sft-grag-tlite-1.0-unsloth-lora-32-qkvo-lr-5/logs/"
 warmup_steps: 20
 report_to: "tensorboard"
 conversation_field: "conversation"
@@ -34,11 +34,8 @@ lora_target_modules:
   - "v_proj"
   - "q_proj"
   - "o_proj"
-  - "gate_proj"
-  - "up_proj" 
-  - "down_proj"
-lora_r: 16
-lora_alpha: 16
+lora_r: 32
+lora_alpha: 32
 assistant_message_template: "<|im_start|>assistant"
 chat_template: "{% for message in messages %}\n    {{- '<|im_start|>' + message.role + '\n' + message.content | trim + '<|im_end|>' + '\n' -}}\n{% endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\n' -}}\n{%- endif %}"
 force_chat_template: True
